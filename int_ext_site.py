@@ -6,21 +6,15 @@ def shortHand(matchedSite):
     #convert to shorthand
     directionRegex = re.compile(r'North|South|East|West')
     banRegex = re.compile(r'Road|Street|Blouevard|Lane|Park|Way|Avenue|\-| \- ')
-    output = ""
+    output = []
     for address in matchedSite.groups():
         if directionRegex.search(address) != None:
-            output += address[0].lower()  #first letter of direction, lowercase
+            output.append(address[0].lower())  #first letter of direction, lowercase
             continue
         elif banRegex.search(address) != None:
             continue
-        output += address.lower()
-    return output
-
-csvFile = open('example.csv', 'r')
-csvList = ""
-with open('example.csv') as csvFile:
-    csvReader = csv.reader(csvFile, delimiter=',')
-    csvList = list(csvReader)
+        output.append(address.lower())
+    return ''.join(output)
 
 def siteGeneratorFromSiteList(fullSiteList):
     internalTemplate = "alias {}=\"192.168.{}.168\"\n"  #shortenedname, port no.
@@ -32,7 +26,11 @@ def siteGeneratorFromSiteList(fullSiteList):
     for site in fullSiteList:
         fullOutput += externalTemplate.format(site[1] + "_ext", site[2])
     return fullOutput
-
+csvFile = open('example.csv', 'r')
+csvList = ""
+with open('example.csv') as csvFile:
+    csvReader = csv.reader(csvFile, delimiter=',')
+    csvList = list(csvReader)
 
 #regex_testing
 siteTypeRegex = [re.compile(r'(^\d+) (North|South|East|West)? (\d+)(th|st|nd)')]
@@ -56,9 +54,8 @@ for site in csvList:
             break
     fullSiteList.append([site[0], shortHand(matchedSite), site[2]])
 
-print("bash_profile created. Run: cat bash_profile >> ~/.bash_profile && source ./bash_profile.")
-
-
 output = siteGeneratorFromSiteList(fullSiteList)
 bashProfile = open("bash_profile", "w+")
 bashProfile.write(output)
+
+print("bash_profile created. Run: cat bash_profile >> ~/.bash_profile && source ./bash_profile.")
